@@ -4,8 +4,8 @@ local ball = {
     x = 100,
     y = 100,
     radius = 20,
-    vx = 400,
-    vy = 400,
+    vx = 200,
+    vy = 200,
     dx = 1,
     dy = 1
 }
@@ -16,7 +16,7 @@ local Rectangle = require("Rectangle")
 
 local p1
 local p2
-local restart = button.new(Rectangle.new(300, 400, 200, 70), "restart")
+local restart
 
 local function ball_reset()
     ball.x = 400
@@ -25,12 +25,33 @@ local function ball_reset()
     ball.dy = math.random(0, 1) * 2 - 1
 end
 
+local function paddle_reset()
+    p1.rect.x = 50
+    p1.rect.y = 50
+    p2.rect.x = 730
+    p2.rect.y = 50
+end
+
+local function paddle_bounds_check()
+    if p1.rect.y < 0 then
+        p1.rect.y = 0
+    elseif p1.rect.y > love.graphics.getHeight() - p1.rect.height then
+        p1.rect.y = love.graphics.getHeight() - p1.rect.height
+    end
+
+    if p2.rect.y < 0 then
+        p2.rect.y = 0
+    elseif p2.rect.y > love.graphics.getHeight() - p2.rect.height then
+        p2.rect.y = love.graphics.getHeight() - p2.rect.height
+    end
+end
+
 local function ball_bounds_check()
     -- Ball
-    if ball.x > 800 - ball.radius or ball.x < 0 + ball.radius then
+    if ball.x > love.graphics.getWidth() - ball.radius or ball.x < 0 + ball.radius then
         ball.dx = -ball.dx
         gameover = true
-    elseif ball.y > 600 - ball.radius or ball.y < 0 + ball.radius then
+    elseif ball.y > love.graphics.getHeight() - ball.radius or ball.y < 0 + ball.radius then
         ball.dy = -ball.dy
     end
 end
@@ -66,17 +87,19 @@ end
 
 function love.load()
     -- love.window.setFullscreen(true, "desktop")
-    love.window.setMode(800, 600, {resizable = true})
+    love.window.setMode(800, 600, {resizable = false})
     p1 = paddle.new(Rectangle.new(50, 50, 20, 200))
     p2 =  paddle.new(Rectangle.new(730, 50, 20, 200))
+    restart = button.new(Rectangle.new(love.graphics.getWidth() / 2 - 100, love.graphics.getHeight() / 2 - 60, 200, 70), "restart")
     
 end
 
 function love.update(dt)
-    local x, y = love.mouse.getPosition() -- get the position of the mouse
+    local x, y = love.mouse.getPosition() 
 
     ball_bounds_check()
     collision_check()
+    paddle_bounds_check()
     
     if not gameover then
         if love.keyboard.isDown("up") then
@@ -94,14 +117,17 @@ function love.update(dt)
         ball.x = ball.x + ball.vx * ball.dx * dt
         ball.y = ball.y + ball.vy * ball.dy * dt
     elseif gameover and pointRectangleCollision(x, y, restart.rect) and love.mouse.isDown(1) then
-        gameover = false
         ball_reset()
+        paddle_reset()
+        gameover = false
     end
 end
 
 function love.draw()
     if not gameover then
         love.graphics.clear(0x18/255, 0x18/255, 0x18/255, 1)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.line(love.graphics.getWidth() / 2, 0, love.graphics.getWidth() / 2, love.graphics.getHeight())
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
         love.graphics.setColor(0, 0.5, 1, 1)
