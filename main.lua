@@ -10,12 +10,20 @@ local ball = {
     dy = 1
 }
 
-local paddle = require("paddle")
-local button = require("Button")
+local paddle    = require("paddle")
+local button    = require("Button")
+local Rectangle = require("Rectangle")
 
 local p1
 local p2
-local restart = button.new(300, 400, 200, 70, "restart")
+local restart = button.new(Rectangle.new(300, 400, 200, 70), "restart")
+
+local function ball_reset()
+    ball.x = 400
+    ball.y = 300
+    ball.dx = math.random(0, 1) * 2 - 1
+    ball.dy = math.random(0, 1) * 2 - 1
+end
 
 local function ball_bounds_check()
     -- Ball
@@ -26,6 +34,16 @@ local function ball_bounds_check()
         ball.dy = -ball.dy
     end
 end
+
+local function pointRectangleCollision(px, py, rect) 
+    return (
+        px >= rect.x and 
+        px <= rect.x + rect.width and 
+        py >= rect.y and 
+        py <= rect.y + rect.height
+    );
+end
+
 
 local function checkCircleRectCollision(circle, rect) 
     local closestX = math.max(rect.x, math.min(circle.x, rect.x + rect.width))
@@ -39,7 +57,8 @@ local function checkCircleRectCollision(circle, rect)
 end
 
 local function collision_check()
-    if checkCircleRectCollision(ball, p1) or checkCircleRectCollision(ball, p2) then
+    if checkCircleRectCollision(ball, Rectangle.new(p1.rect.x, p1.rect.y, p1.rect.width, p1.rect.height)) or
+     checkCircleRectCollision(ball, Rectangle.new(p2.rect.x, p2.rect.y, p2.rect.width, p2.rect.height)) then
         ball.dx = -ball.dx
     end
 
@@ -47,9 +66,9 @@ end
 
 function love.load()
     -- love.window.setFullscreen(true, "desktop")
-    love.window.setMode(800, 600, {resizable = false})
-    p1 = paddle.new(50, 50, 20, 200)
-    p2 =  paddle.new(730, 50, 20, 200)
+    love.window.setMode(800, 600, {resizable = true})
+    p1 = paddle.new(Rectangle.new(50, 50, 20, 200))
+    p2 =  paddle.new(Rectangle.new(730, 50, 20, 200))
     
 end
 
@@ -61,22 +80,22 @@ function love.update(dt)
     
     if not gameover then
         if love.keyboard.isDown("up") then
-            p2.y = p2.y - 300 * dt
+            p2.rect.y = p2.rect.y - 300 * dt
         elseif love.keyboard.isDown("down") then
-            p2.y = p2.y + 300 * dt
+            p2.rect.y = p2.rect.y + 300 * dt
         end
 
         if love.keyboard.isDown("w") then
-            p1.y = p1.y - 300 * dt
+            p1.rect.y = p1.rect.y - 300 * dt
         elseif love.keyboard.isDown("s") then
-            p1.y = p1.y + 300 * dt
+            p1.rect.y = p1.rect.y + 300 * dt
         end
 
         ball.x = ball.x + ball.vx * ball.dx * dt
         ball.y = ball.y + ball.vy * ball.dy * dt
-    
-    elseif restart:update(x, y) then
+    elseif gameover and pointRectangleCollision(x, y, restart.rect) and love.mouse.isDown(1) then
         gameover = false
+        ball_reset()
     end
 end
 
@@ -89,7 +108,8 @@ function love.draw()
         p1:draw()
         p2:draw()
     else
-        love.graphics.print("gameover", love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+        love.graphics.setColor(0.7, 0.5, 1, 1)
+        -- love.graphics.print("gameover", love.graphics.getWidth() / 2 - 50, love.graphics.getHeight() / 2 - 50, 0, 4, 4)
         restart:draw()
     end
   

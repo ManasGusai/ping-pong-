@@ -1,40 +1,40 @@
+local Rectangle = require("Rectangle")
+
 local Button = {}
 
 Button.__index = Button
 
-function Button.new(x, y, width, height, text)
+function Button.new(rect, text)
     local self = setmetatable({}, Button)
 
-    self.x = x
-    self.y = y
-    self.width = width
-    self.height = height
+    self.rect = Rectangle.new(rect.x, rect.y, rect.width, rect.height)
     self.text = text
 
     return self
 end
 
 function Button:draw()
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-    love.graphics.printf( self.text, self.x, self.y, self.width, "center", 0, 1, 1, 0, 0, 0, 0 )
+    local font = love.graphics.getFont()
+    local textHeight = font:getHeight()
+
+    love.graphics.rectangle("fill",
+        self.rect.x, self.rect.y,
+        self.rect.width, self.rect.height
+    )
+
+    love.graphics.setColor(1, 0, 0, 1)
+
+    love.graphics.printf(
+        self.text,
+        self.rect.x,
+        self.rect.y + (self.rect.height - textHeight) / 2,
+        self.rect.width,
+        "center"
+    )
 end
 
-function Button:update()
-    local x, y = love.mouse.getPosition()
-    if self:pointRectangleCollision(x, y) and love.mouse.isPressed(1) then
-        return true
-    end
-
-    return false
-end
-
-function Button:pointRectangleCollision(px, py) 
-    return (
-        px >= self.x and 
-        px <= self.x + self.width and 
-        py >= self.y and 
-        py <= self.y + self.height
-    );
+function Button:getRect()
+    return self.rect
 end
 
 return Button

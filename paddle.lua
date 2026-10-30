@@ -2,19 +2,16 @@ local Paddle = {}
 
 Paddle.__index = Paddle
 
-function Paddle.new(x, y, width, height)
+function Paddle.new(rectangle)
     local self = setmetatable({}, Paddle)
 
-    self.x = x
-    self.y = y
-    self.width = width
-    self.height = height
+    self.rect = rectangle
 
     return self
 end
 
 function Paddle:draw()
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+    love.graphics.rectangle("fill", self.rect.x, self.rect.y, self.rect.width, self.rect.height)
 end
 
 return Paddle
