@@ -18,6 +18,9 @@ local p1
 local p2
 local restart
 
+local p1_score = 0
+local p2_score = 0
+
 local function ball_reset()
     ball.x = 400
     ball.y = 300
@@ -48,10 +51,17 @@ end
 
 local function ball_bounds_check()
     -- Ball
-    if ball.x > love.graphics.getWidth() - ball.radius or ball.x < 0 + ball.radius then
+    if ball.x > love.graphics.getWidth() - ball.radius then
         ball.dx = -ball.dx
-        gameover = true
-    elseif ball.y > love.graphics.getHeight() - ball.radius or ball.y < 0 + ball.radius then
+        p1_score = p1_score + 1
+        ball_reset()
+    elseif ball.x < 0 + ball.radius then
+        ball.dx = -ball.dx
+        p2_score = p2_score + 1
+        ball_reset()
+    end
+
+    if ball.y > love.graphics.getHeight() - ball.radius or ball.y < 0 + ball.radius then
         ball.dy = -ball.dy
     end
 end
@@ -100,6 +110,10 @@ function love.update(dt)
     ball_bounds_check()
     collision_check()
     paddle_bounds_check()
+
+    if p1_score >= 10 or p2_score >= 10 then
+        gameover = true
+    end
     
     if not gameover then
         if love.keyboard.isDown("up") then
@@ -128,13 +142,17 @@ function love.draw()
         love.graphics.clear(0x18/255, 0x18/255, 0x18/255, 1)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.line(love.graphics.getWidth() / 2, 0, love.graphics.getWidth() / 2, love.graphics.getHeight())
+        love.graphics.print(p1_score, love.graphics.getWidth() / 2 - 50, 20, 0, 4, 4)
+        love.graphics.print(p2_score, love.graphics.getWidth() / 2 + 20, 20, 0, 4, 4)
+
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
         love.graphics.setColor(0, 0.5, 1, 1)
         p1:draw()
         p2:draw()
     else
-        love.graphics.setColor(0.7, 0.5, 1, 1)
+        love.graphics.clear(0x18/255, 0x18/255, 0x18/255, 1)
+        love.graphics.setColor(0.1, 0.6, 0.2, 1)
         -- love.graphics.print("gameover", love.graphics.getWidth() / 2 - 50, love.graphics.getHeight() / 2 - 50, 0, 4, 4)
         restart:draw()
     end
