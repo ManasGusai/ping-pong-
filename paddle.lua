@@ -1,17 +1,17 @@
-local Paddle = {}
+local paddle = {}
 
-Paddle.__index = Paddle
+paddle.__index = paddle
 
-function Paddle.new(rectangle)
-    local self = setmetatable({}, Paddle)
+function paddle.new(rectangle)
+    local self = setmetatable({}, paddle)
 
     self.rect = rectangle
 
     return self
 end
 
-function Paddle:draw()
+function paddle:draw()
     love.graphics.rectangle("fill", self.rect.x, self.rect.y, self.rect.width, self.rect.height)
 end
 
-return Paddle
+return paddle

@@ -1,7 +1,7 @@
-local Rectangle = {}
+local rectangle = {}
 
-function Rectangle.new(x, y, width, height)
-    local self = setmetatable({}, Rectangle)
+function rectangle.new(x, y, width, height)
+    local self = setmetatable({}, rectangle)
 
     self.x = x
     self.y = y
@@ -11,4 +11,4 @@ function Rectangle.new(x, y, width, height)
     return self
 end
 
-return Rectangle
+return rectangle

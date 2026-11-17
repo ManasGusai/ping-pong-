@@ -1,11 +1,11 @@
-local Rectangle = require("Rectangle")
+local Rectangle = require("rectangle")
 
-local Button = {}
+local button = {}
 
-Button.__index = Button
+button.__index = button
 
-function Button.new(rect, text)
-    local self = setmetatable({}, Button)
+function button.new(rect, text)
+    local self = setmetatable({}, button)
 
     self.rect = Rectangle.new(rect.x, rect.y, rect.width, rect.height)
     self.text = text
@@ -13,7 +13,7 @@ function Button.new(rect, text)
     return self
 end
 
-function Button:draw()
+function button:draw()
     local font = love.graphics.getFont()
     local textHeight = font:getHeight()
 
@@ -33,8 +33,8 @@ function Button:draw()
     )
 end
 
-function Button:getRect()
+function button:getRect()
     return self.rect
 end
 
-return Button
+return button
