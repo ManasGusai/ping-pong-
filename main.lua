@@ -1,5 +1,7 @@
 local gameover = false
 
+local MAX_SCORE = 2
+
 local ball = {
     x = 100,
     y = 100,
@@ -10,9 +12,11 @@ local ball = {
     dy = 1
 }
 
+local font
+
 local paddle    = require("paddle")
-local button    = require("Button")
-local Rectangle = require("Rectangle")
+local button    = require("button")
+local Rectangle = require("rectangle")
 
 local p1
 local p2
@@ -33,6 +37,18 @@ local function paddle_reset()
     p1.rect.y = 50
     p2.rect.x = 730
     p2.rect.y = 50
+end
+
+local function score_reset()
+    p1_score = 0
+    p2_score = 0
+end
+
+local function reset_game()
+    ball_reset()
+    paddle_reset()
+    score_reset()
+    gameover = false
 end
 
 local function paddle_bounds_check()
@@ -97,6 +113,8 @@ end
 
 function love.load()
     -- love.window.setFullscreen(true, "desktop")
+    font = love.graphics.newFont(48)
+    love.graphics.setFont(font)
     love.window.setMode(800, 600, {resizable = false})
     p1 = paddle.new(Rectangle.new(50, 50, 20, 200))
     p2 =  paddle.new(Rectangle.new(730, 50, 20, 200))
@@ -111,7 +129,7 @@ function love.update(dt)
     collision_check()
     paddle_bounds_check()
 
-    if p1_score >= 10 or p2_score >= 10 then
+    if p1_score >= MAX_SCORE or p2_score >= MAX_SCORE then
         gameover = true
     end
     
@@ -131,9 +149,7 @@ function love.update(dt)
         ball.x = ball.x + ball.vx * ball.dx * dt
         ball.y = ball.y + ball.vy * ball.dy * dt
     elseif gameover and pointRectangleCollision(x, y, restart.rect) and love.mouse.isDown(1) then
-        ball_reset()
-        paddle_reset()
-        gameover = false
+        reset_game()
     end
 end
 
@@ -142,18 +158,24 @@ function love.draw()
         love.graphics.clear(0x18/255, 0x18/255, 0x18/255, 1)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.line(love.graphics.getWidth() / 2, 0, love.graphics.getWidth() / 2, love.graphics.getHeight())
-        love.graphics.print(p1_score, love.graphics.getWidth() / 2 - 50, 20, 0, 4, 4)
-        love.graphics.print(p2_score, love.graphics.getWidth() / 2 + 20, 20, 0, 4, 4)
+        love.graphics.print(p1_score, love.graphics.getWidth() / 2 - 50)
+        love.graphics.print(p2_score, love.graphics.getWidth() / 2 + 20)
 
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.circle("fill", ball.x, ball.y, ball.radius)
         love.graphics.setColor(0, 0.5, 1, 1)
         p1:draw()
         p2:draw()
-    else
+    elseif gameover then
         love.graphics.clear(0x18/255, 0x18/255, 0x18/255, 1)
         love.graphics.setColor(0.1, 0.6, 0.2, 1)
-        -- love.graphics.print("gameover", love.graphics.getWidth() / 2 - 50, love.graphics.getHeight() / 2 - 50, 0, 4, 4)
+
+        if p1_score >= MAX_SCORE then
+            love.graphics.print("Player 1 Wins!", love.graphics.getWidth() / 2 - 150, love.graphics.getHeight() / 2 - 200)
+        elseif p2_score >= MAX_SCORE then
+            love.graphics.print("Player 2 Wins!", love.graphics.getWidth() / 2 - 150, love.graphics.getHeight() / 2 - 200)
+        end
+
         restart:draw()
     end
   
